@@ -21,4 +21,4 @@ requires:
   List::Util: 0
   Moo: 0
   constant: 0
-version: 0.001
+version: 0.002

@@ -19,7 +19,7 @@ ok(abs($e->at(-$e->duration) - $e->at(-2*$e->duration)) < $dev, 'neg hold every'
 ok(abs($e->at($e->duration) - $e->at(2*$e->duration)) < $dev, 'over hold');
 
 ok(abs($e->at(0) - $e->at(-$e->duration - 0.3)) < $dev, 'neg hold min');
-ok(abs($e->at($e->duration+$dev) - $e->at($e->duration + 0.1)) < $dev, 'over hold min');
+ok(abs($e->at($e->duration) - $e->at($e->duration + 0.1)) < $dev, 'over hold min');
 
 my $s = $e->static;
 ok(abs($s->(0) - $s->(-$e->duration-$dev)) < $dev, 'st neg hold');
@@ -27,7 +27,7 @@ ok(abs($s->(-$e->duration) - $s->(-2*$e->duration)) < $dev, 'st neg hold every')
 ok(abs($s->($e->duration) - $s->($e->duration*2)) < $dev, 'st over hold');
 
 ok(abs($s->(0) - $s->(-$e->duration - 0.3)) < $dev, 'st neg hold min');
-ok(abs($s->($e->duration+$dev) - $s->($e->duration + 0.1)) < $dev, 'st over hold min');
+ok(abs($s->($e->duration) - $s->($e->duration + 0.1)) < $dev, 'st over hold min');
 
 
 $e->is_hold(0);

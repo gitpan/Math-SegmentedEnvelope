@@ -10,8 +10,8 @@ has def => ( is => 'ro', default => sub {  # random by default
     my $size = int(rand(5)+3);
     [ 
         [0, map(rand, (0) x $size), 0],
-        [normalize_sum(map rand() + 0.001, (0) x ($size + 1))],
-        [map 4 * (rand) - 2, (0) x ($size + 1)] 
+        [normalize_sum(map rand() + 0.2, (0) x ($size + 1))],
+        [map 3 * (rand) - 1.5, (0) x ($size + 1)] 
     ] 
 });
 has is_morph => ( is => 'rw' );
@@ -65,8 +65,8 @@ sub at {
         $self->_passed_segments_duration,
         $self->_current_segment
     );
-    while ($t < $pd) { $pd -= $self->def->[1]->[--$i] } # backward
-    $t -= $pd;  # remove duration of passed segments
+    while ($t < $pd && $i > 0) { $pd -= $self->def->[1]->[--$i] } # backward
+    $i == 0 ? $pd = 0 : $t -= $pd;  # remove duration of passed segments
     while ($i < $self->_segments) { # forward - determine segment and cache it for next time
         $d = $self->def->[1]->[$i]; # set current segment duration + error
         if ($t > $d && $i != $self->_segments - 1) { # t passed this segment, so remove this segment duration
@@ -76,6 +76,7 @@ sub at {
             $i = $self->update_current_segment($i) unless $i == $self->_past_segment; last;
         }
     }
+    # print "r:$i\tt:$t\td:$d\tp:$pd";
     $self->_passed_segments_duration($pd) if $pd != $self->_passed_segments_duration;
     $self->_current_segment($i) if $i != $self->_current_segment;
     abs( # result value
@@ -84,6 +85,7 @@ sub at {
         * $self->_is_asc
         + $self->_is_neg
     ) * $self->_level_diff + $self->def->[0]->[$i];
+    #print "\t$t\n"; $t;
 }
 
 sub wrap_value {
@@ -204,23 +206,25 @@ sub static { # make immutable evaluator from current params
     my $last_segment = @$dur - 1;
     sub {
         my $t = $wrap_pos->($_[0]);
-        while ($t < $pd) { $pd -= $dur->[--$i] } # backward
-        $t -= $pd;  # remove duration of passed segments
+        while ($t < $pd && $i > 0) { $pd -= $dur->[--$i] } # backward
+        $i == 0 ? $pd = 0 : $t -= $pd;  # remove duration of passed segments
         while ($i <= $last_segment) { # forward - determine segment and cache it for next tiem
             $d = $dur->[$i]; # set current segment duration
             if ($t > $d && $i != $last_segment) { # t passed this segment, so remove this segment duration
-                $t -= $d; $pd += $d; $i++;
+                $t -= $d; $pd += $d; $i++; next;
             } else {  # $t is in current segment
                 $t = $d if $t > $d;
                 $segment_data->() unless $i == $cs; last;
             }
         }
+        #print "r:$i\tt:$t\td:$d\tp:$pd";
         abs( # result value
             $wrap_value->(( $is_neg ? ($d - $t) : $t ) / $d)
             ** abs($cur->[$i])
             * $is_asc
             + $is_neg
         ) * $level_diff + $lev->[$i];
+        #print "\t$t\n"; $t;
     }
 }
 
