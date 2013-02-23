@@ -26,11 +26,13 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Carp" => 0,
     "Clone" => 0,
+    "Exporter::Easy" => 0,
     "List::Util" => 0,
     "Moo" => 0,
-    "constant" => 0
+    "constant" => 0,
+    "namespace::autoclean" => 0
   },
-  "VERSION" => "0.01",
+  "VERSION" => "0.02",
   "test" => {
     "TESTS" => "t/*.t"
   }
